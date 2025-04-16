@@ -89,10 +89,6 @@ if ispc
         end
     end
 
-    if ERR~=0
-        app.bartVersion = 'none';
-    end
-
     % Delete the temporary folder
     try
         delete(strcat(name,filesep,'*'));
@@ -193,11 +189,7 @@ if ismac
             delete(strcat(out{i}, '.hdr'));
         end
     end
-
-    if ERR~=0
-        app.bartVersion = 'none';
-    end
-
+ 
 end
 
 
