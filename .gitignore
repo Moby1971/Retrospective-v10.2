@@ -31,7 +31,6 @@ makefile
 functions/unRing/OSX/
 functions/unRing/Windows/
 functions/denoise/NLMFdenoise/source/
-.claude/
 retrospective10.mlapp.bak
 STATUS.md
 
