@@ -41,10 +41,25 @@ if ispc
 
     in_str = sprintf(' %s', in{:});
 
-    out = cell(1, nargout);
+    % Commands whose result is printed to stdout rather than written to a file.
+    % These must NOT be given an output filename. estdelay in particular takes an
+    % optional third positional argument <qf>: hand it one and it writes the delay
+    % coefficients to that file and prints NOTHING, so the caller parsing stdout gets
+    % an empty string. That is what made every gradient delay estimation fail --
+    % str2num('') returns [], and the caller's dTotal(1) = -dTotal(1) then threw
+    % "Index exceeds array bounds", which was reported as "Ring gradient delay
+    % estimation failed". Older BART had no <qf> argument, which is why this worked
+    % before. Suppressing the output file gives the printed result on every version.
+    textOutputCmd = contains(cmd, "estdelay") || contains(cmd, "-Rh") || contains(cmd, "version");
 
-    for i=1:nargout
-        out{i} = strcat(name, 'out', num2str(i));
+    if textOutputCmd
+        out = {};
+    else
+        out = cell(1, nargout);
+
+        for i=1:nargout
+            out{i} = strcat(name, 'out', num2str(i));
+        end
     end
 
     out_str = sprintf(' %s', out{:});
@@ -74,11 +89,14 @@ if ispc
 
     for i=1:nargout
         if ERR==0
-            if contains(cmd,"estdelay") || contains(cmd,"-Rh") || contains(cmd,"version") 
+            if textOutputCmd
                 varargout{1} = cmdout;
             else
                 varargout{i} = readcfl(out{i});
             end
+        end
+        if textOutputCmd
+            continue
         end
         if (exist(strcat(out{i}, '.cfl'),'file'))
             delete(strcat(out{i}, '.cfl'));
@@ -145,10 +163,25 @@ if ismac
 
     in_str = sprintf(' %s', in{:});
 
-    out = cell(1, nargout);
+    % Commands whose result is printed to stdout rather than written to a file.
+    % These must NOT be given an output filename. estdelay in particular takes an
+    % optional third positional argument <qf>: hand it one and it writes the delay
+    % coefficients to that file and prints NOTHING, so the caller parsing stdout gets
+    % an empty string. That is what made every gradient delay estimation fail --
+    % str2num('') returns [], and the caller's dTotal(1) = -dTotal(1) then threw
+    % "Index exceeds array bounds", which was reported as "Ring gradient delay
+    % estimation failed". Older BART had no <qf> argument, which is why this worked
+    % before. Suppressing the output file gives the printed result on every version.
+    textOutputCmd = contains(cmd, "estdelay") || contains(cmd, "-Rh") || contains(cmd, "version");
 
-    for i=1:nargout
-        out{i} = strcat(name, 'out', num2str(i));
+    if textOutputCmd
+        out = {};
+    else
+        out = cell(1, nargout);
+
+        for i=1:nargout
+            out{i} = strcat(name, 'out', num2str(i));
+        end
     end
 
     out_str = sprintf(' %s', out{:});
@@ -175,11 +208,14 @@ if ismac
     % Output
     for i=1:nargout
         if ERR==0
-            if contains(cmd,"estdelay") || contains(cmd,"-Rh") || contains(cmd,"version")
+            if textOutputCmd
                 varargout{1} = cmdout;
             else
                 varargout{i} = readcfl(out{i}); %#ok<*AGROW> 
             end
+        end
+        if textOutputCmd
+            continue
         end
         if (exist(strcat(out{i}, '.cfl'),'file'))
             delete(strcat(out{i}, '.cfl'));
